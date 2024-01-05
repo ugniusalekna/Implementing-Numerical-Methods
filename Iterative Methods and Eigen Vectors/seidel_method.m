@@ -1,0 +1,43 @@
+function R = seidel_method(A, b, X, atol)
+
+% function seidel_method returns one vector R
+% which is a solution to a linear system of equations AX = b
+% function seidel_method has 4 input values, being:
+% A - the coefficient matrix
+% b - the right hand side vector
+% X - the starting vector of the algorithm
+% atol - maximum error of the root
+
+n = length(b);
+b = b';
+
+% Checking if the matrix A is diagonally dominant (A convergence test)
+for i = 1:n
+    row = abs(A(i,:));
+    dif = sum(row) - row(i);
+    if row(i) <= dif
+        fprintf("Given matrix A is not diagonally dominant, Jacobi's method will fail to converge.")
+        R = NaN;
+        return
+    end
+end
+
+err = inf;
+k = 0;
+while err > atol
+    k = k + 1;
+    for i = 1:n
+        Sum1 = 0;
+        for j = 1:i-1
+            Sum1 = Sum1 + A(i,j)*R(j);
+        end
+        Sum2 = 0;
+        for j = i+1:n
+            Sum2 = Sum2 + A(i,j)*X(j);
+        end
+        R(i) = 1/A(i,i) * (b(i) - Sum1 - Sum2);
+    end
+    err = max(abs(X - R));
+    fprintf('x(%d) = %s; error = %s ; loss = %f\n',k, sprintf('%f ', R), sprintf('%f ', abs(X - R)), err);
+    X = R;
+end
